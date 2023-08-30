@@ -10,3 +10,6 @@ To start this application first open the terminal and type "node main.mjs" and t
 6. add employee, you will type the first name, last name, employee's role, then employee's manager and then it's added
 7. update employee role, it will ask to select the employee by the id, then enter the new role id.
 8. exit, with this option you will finish the program.
+Here is a picture of the program
+![Alt text](<employee_log_manager pic.png>)
+and here is the ropo link. https://github.com/Jrherrera333/employee-log-manager/tree/main 
