@@ -45,7 +45,7 @@ const startApp = () => {
 };
 
 const viewDepartments = () => {
-    connection.query('SELECT * FROM department_temp', (err, results) => {
+    connection.query('SELECT * FROM department_new', (err, results) => {
         if (err) throw err;
         console.table(results);
         startApp();
@@ -53,7 +53,7 @@ const viewDepartments = () => {
 };
 
 const viewRoles = () => {
-    connection.query('SELECT * FROM role_temp', (err, results) => {
+    connection.query('SELECT * FROM role_new', (err, results) => {
         if (err) throw err;
         console.table(results);
         startApp();
@@ -61,7 +61,7 @@ const viewRoles = () => {
 };
 
 const viewEmployee = () => {
-    connection.query('SELECT * FROM employee_temp', (err, results) => {
+    connection.query('SELECT * FROM employee_new', (err, results) => {
         if (err) throw err;
         console.table(results);
         startApp();
@@ -76,7 +76,7 @@ const addDepartment = () => {
             message: 'Enter department name:',
         },
     ]).then((answers) => {
-        connection.query('INSERT INTO department_temp (name) VALUES (?)', [answers.name], (err, result) => {
+        connection.query('INSERT INTO department_new (name) VALUES (?)', [answers.name], (err, result) => {
             if (err) throw err;
             console.log('Added department: ${answer.name}');
             startApp();
@@ -85,6 +85,11 @@ const addDepartment = () => {
 };
 
 const addRole = () => {
+    const deptChoices = [
+        { name: 'Finance', id: 1 },
+        { name: 'HR', id: 2 },
+        { name: 'Maintenance', id: 3 }
+    ];
     prompt([
         {
             type: 'input',
@@ -100,19 +105,36 @@ const addRole = () => {
             type: 'list',
             name: 'department_id',
             message: 'Select the department id:',
-            choices: [1, 2, 3],
+            choices: deptChoices.map(dept => dept.name), // Corrected this line
         },
     ]).then((answers) => {
-        connection.query('INSERT INTO role_temp (title, salary, department_id) VALUES (?, ?, ?)', [answers.role_name, answers.salary, 
-            answers.department_id], (err, results) => {
+        // Find the selected department's ID based on the selected name
+        const selectedDepartment = deptChoices.find(dept => dept.name === answers.department_id);
+
+        const values = [answers.title, answers.salary, selectedDepartment.id];
+
+        connection.query('INSERT INTO role_new (title, salary, department_id) VALUES (?, ?, ?)', values, (err, results) => {
             if (err) throw err;
-            console.log('Added user: ${answer.first_name}, ${answer.last_name}');
+            console.log(`Added role: ${answers.title}`);
             startApp();
         });
     });
 };
 
+
 const addEmployee = () => {
+    const roleChoices = [
+        { name: 'Role A', id: 1 },
+        { name: 'Role B', id: 2 },
+        { name: 'Role C', id: 3 }
+    ];
+
+    const managerChoices = [
+        { name: 'Peter', id: 1 },
+        { name: 'Miguel', id: 2 },
+        { name: 'Jose R', id: 3 }
+    ];
+
     prompt([
         {
             type: 'input',
@@ -127,30 +149,37 @@ const addEmployee = () => {
         {
             type: 'list',
             name: 'role_id',
-            message: 'Select the role id:',
-            choices: [1, 2, 3],
+            message: 'Select the employee role:',
+            choices: roleChoices.map(role => role.name),
         },
         {
             type: 'list',
-            name: 'manager_id',
-            message: 'Enter the employee manager:',
-            choices: ['Manager A', 'Manager B', 'Manager C'],
+            name: 'manager_name',
+            message: 'Select the employee manager:',
+            choices: managerChoices.map(manager => manager.name),
         },
     ]).then((answers) => {
-        connection.query('INSERT INTO employee_temp (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', [answers.first_name, 
-            answers.last_name, answers.role_id, answers.manager_id], (err, results) => {
+        // Find the selected role's ID and manager's ID based on the selected names
+        const selectedRole = roleChoices.find(role => role.name === answers.role_id);
+        const selectedManager = managerChoices.find(manager => manager.name === answers.manager_name);
+
+        const values = [answers.first_name, answers.last_name, selectedRole.id, selectedManager.id];
+
+        connection.query('INSERT INTO employee_new (first_name, last_name, role_id, manager_id) VALUES (?, ?, ?, ?)', values, (err, results) => {
             if (err) throw err;
-            console.log('Added user: ${answer.first_name}, ${answer.last_name}');
+            console.log(`Added user: ${answers.first_name}, ${answers.last_name}`);
             startApp();
         });
     });
 };
 
+
+
 const updateEmployeeRole = () => {
     prompt([
         {
             type: 'input',
-            name: 'newRoleId',
+            name: 'employeeId', // Change to 'employeeId'
             message: 'Enter the ID of the employee whose role you want to update:',
         },
         {
@@ -163,15 +192,17 @@ const updateEmployeeRole = () => {
         const employeeId = parseInt(answers.employeeId);
         const newRoleId = parseInt(answers.newRoleId);
 
-        const query = 'UPDATE employee_temp SET role_id = ? WHERE id = ?';
+        const query = 'UPDATE employee_new SET employee_id = ? WHERE role_id = ?';
 
         connection.query(query, [newRoleId, employeeId], (err, results) => {
             if (err) {
                 console.error('Error updating employee role:', err);
             } else {
-                console.log('Employee with ID ${employeeId} has been assigned a new role with ID ${newRoleId}.');
+                console.log(`Employee with ID ${employeeId} has been assigned a new role with ID ${newRoleId}.`); // Use backticks here
             }
-        })
-    })
-}
+            startApp();
+        });
+    });
+};
+
 startApp();
