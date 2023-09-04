@@ -1,5 +1,5 @@
 import inquirer from 'inquirer';
-import { connection } from './mysqlConnector.mjs';
+import { connection } from './mysqlConnector.js';
 
 const prompt = inquirer.createPromptModule();
 

@@ -1,7 +1,8 @@
 {
+  "type": "module", 
   "dependencies": {
     "esm": "^3.2.25",
-    "inquirer": "^8.2.4",
+    "inquirer": "^8.0.0",
     "mysql": "^2.18.1",
     "mysql2": "^3.6.0"
   }
